@@ -60,7 +60,6 @@ def get_main_keyboard():
 
     # Добавляем кнопки в два ряда
     builder.add(
-        KeyboardButton(text="📅 Мероприятия"),
         KeyboardButton(text="🗓️ Календарь"),
         KeyboardButton(text="🔄 Обновить"),
         KeyboardButton(text="📊 Статус"),
@@ -76,7 +75,6 @@ def get_events_keyboard():
     builder = ReplyKeyboardBuilder()
 
     builder.add(
-        KeyboardButton(text="📅 Все мероприятия"),
         KeyboardButton(text="🗓️ Календарь"),
         KeyboardButton(text="🔄 Обновить"),
         KeyboardButton(text="🏠 Главное меню")
