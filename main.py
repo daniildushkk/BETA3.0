@@ -5,6 +5,7 @@ import aiohttp
 import json
 import aiosqlite
 import re
+import random
 from datetime import datetime, timedelta
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
@@ -12,7 +13,7 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardB
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 import vk_api
 from vk_api.utils import get_random_id
-from translate import Translator  # <-- Добавляем офлайн переводчик
+from googletrans import Translator
 
 # Загрузка переменных среды
 from dotenv import load_dotenv
@@ -142,37 +143,70 @@ class TranslationService:
 # Инициализация сервиса переводов
 translator = TranslationService()
 
-# === ПЕРЕВОДЧИК ТЕКСТА (ОФФЛАЙН) ===
-class TextTranslator:
+# === УМНЫЙ ПЕРЕВОДЧИК С КЭШИРОВАНИЕМ ===
+class SmartTranslator:
     def __init__(self):
-        self.translators = {}
-        logger.info("✅ Офлайн-переводчик инициализирован")
+        self.translator = Translator()
+        self.translation_cache = {}
+        self.cache_file = 'translation_cache.json'
+        self.load_cache()
+        logger.info("✅ Умный переводчик с кэшированием инициализирован")
+
+    def load_cache(self):
+        """Загрузка кэша переводов из файла"""
+        try:
+            if os.path.exists(self.cache_file):
+                with open(self.cache_file, 'r', encoding='utf-8') as f:
+                    self.translation_cache = json.load(f)
+                logger.info(f"✅ Загружено {len(self.translation_cache)} кэшированных переводов")
+        except Exception as e:
+            logger.warning(f"Не удалось загрузить кэш: {e}")
+            self.translation_cache = {}
+
+    def save_cache(self):
+        """Сохранение кэша переводов в файл"""
+        try:
+            with open(self.cache_file, 'w', encoding='utf-8') as f:
+                json.dump(self.translation_cache, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.warning(f"Не удалось сохранить кэш: {e}")
 
     async def translate_text(self, text: str, target_lang: str = 'en') -> str:
-        """Перевод текста с помощью офлайн библиотеки"""
+        """Умный перевод с кэшированием"""
         if target_lang == 'ru' or not text.strip():
             return text
 
+        # Создаем ключ для кэша
+        cache_key = f"{text}_{target_lang}"
+
+        # Проверяем кэш
+        if cache_key in self.translation_cache:
+            return self.translation_cache[cache_key]
+
         try:
-            # Создаем переводчик для нужного языка если его еще нет
-            if target_lang not in self.translators:
-                self.translators[target_lang] = Translator(to_lang=target_lang)
+            # Добавляем небольшую случайную задержку от 0.1 до 0.5 секунд
+            await asyncio.sleep(random.uniform(0.1, 0.5))
 
             # Выполняем перевод
-            translated = self.translators[target_lang].translate(text)
+            translated = self.translator.translate(text, dest=target_lang)
 
-            # Если перевод не удался, возвращаем оригинальный текст
-            if translated and translated != text:
-                return translated
-            else:
-                return text
+            result = translated.text if translated and hasattr(translated, 'text') else text
+
+            # Сохраняем в кэш
+            self.translation_cache[cache_key] = result
+            self.save_cache()
+
+            return result
 
         except Exception as e:
             logger.warning(f"Ошибка перевода: {e}")
+            # Сохраняем оригинальный текст в кэш, чтобы не пытаться переводить снова
+            self.translation_cache[cache_key] = text
+            self.save_cache()
             return text
 
-# Инициализация переводчика
-text_translator = TextTranslator()
+# Инициализация умного переводчика
+text_translator = SmartTranslator()
 
 # === СИСТЕМА ЯЗЫКОВ ===
 async def get_user_language(user_id: int) -> str:
@@ -403,7 +437,7 @@ class VKParser:
             return []
 
     async def parse_post(self, post, group_id, owner_id, target_lang='ru'):
-        """Парсинг поста VK с поддержкой перевода"""
+        """Парсинг поста VK с умным переводом"""
         try:
             text = post['text']
             post_id = post['id']
@@ -448,11 +482,22 @@ class VKParser:
             # Очищаем описание
             cleaned_description = clean_description(text, title)
 
-            # Переводим контент если нужно
+            # УМНЫЙ ПЕРЕВОД: переводим только если нужно и используем кэш
             if target_lang == 'en':
-                title = await text_translator.translate_text(title, 'en')
-                cleaned_description = await text_translator.translate_text(cleaned_description, 'en')
-                location = await text_translator.translate_text(location, 'en')
+                # Создаем задачи для параллельного перевода
+                translate_tasks = [
+                    text_translator.translate_text(title, 'en'),
+                    text_translator.translate_text(cleaned_description, 'en'),
+                    text_translator.translate_text(location, 'en')
+                ]
+
+                # Выполняем все переводы параллельно
+                translated_texts = await asyncio.gather(*translate_tasks, return_exceptions=True)
+
+                # Обрабатываем результаты
+                title = translated_texts[0] if not isinstance(translated_texts[0], Exception) else title
+                cleaned_description = translated_texts[1] if not isinstance(translated_texts[1], Exception) else cleaned_description
+                location = translated_texts[2] if not isinstance(translated_texts[2], Exception) else location
 
             event_data = {
                 'title': title,
@@ -998,6 +1043,28 @@ async def update_handler(message: Message):
         logger.error(f"Ошибка парсинга: {e}")
         await message.answer(translator.get_text('parsing_error', lang))
 
+# === ФОНОВЫЙ ПЕРЕВОД ===
+async def background_translation():
+    """Фоновый перевод мероприятий на английский"""
+    try:
+        logger.info("🌍 Запуск фонового перевода мероприятий...")
+
+        parser = VKParser(
+            vk,
+            yandex_api_key=YANDEX_API_KEY,
+            folder_id=YANDEX_FOLDER_ID
+        )
+
+        # Парсим на английском в фоне
+        events_en = await parser.search_events(VK_GROUP_IDS, VK_EVENT_KEYWORDS, 'en')
+        saved_count_en = await parser.save_events_to_db(events_en)
+
+        if saved_count_en > 0:
+            logger.info(f"✅ Фоновый перевод: сохранено {saved_count_en} мероприятий на английском")
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка фонового перевода: {e}")
+
 # === АВТОПАРСИНГ ПРИ СТАРТЕ ===
 async def auto_parse_events():
     """Автоматический парсинг при запуске бота"""
@@ -1012,28 +1079,22 @@ async def auto_parse_events():
             folder_id=YANDEX_FOLDER_ID
         )
 
-        # Парсим на обоих языках
-        events_ru = await parser.search_events(VK_GROUP_IDS, VK_EVENT_KEYWORDS, 'ru')
-        events_en = await parser.search_events(VK_GROUP_IDS, VK_EVENT_KEYWORDS, 'en')
-
-        # Объединяем события (убираем дубликаты по source)
-        all_events = {}
-        for event in events_ru + events_en:
-            key = f"{event['source']}_{event['event_date']}"
-            if key not in all_events:
-                all_events[key] = event
-
-        saved_count = await parser.save_events_to_db(list(all_events.values()))
+        # Парсим ТОЛЬКО на русском для скорости
+        events = await parser.search_events(VK_GROUP_IDS, VK_EVENT_KEYWORDS, 'ru')
+        saved_count = await parser.save_events_to_db(events)
 
         if saved_count > 0:
             logger.info(f"✅ Автопарсинг: сохранено {saved_count} мероприятий")
+
+            # Запускаем фоновый перевод на английский
+            asyncio.create_task(background_translation())
         else:
             logger.info("✅ Автопарсинг: новых мероприятий не найдено")
 
     except Exception as e:
         logger.error(f"❌ Ошибка автопарсинга: {e}")
 
-# === ЗАПУСК С ОБРАБОТКОЯ ОШИБОК ===
+# === ЗАПУСК С ОБРАБОТКОЙ ОШИБОК ===
 async def safe_start_polling():
     """Безопасный запуск бота с повторными попытками"""
     max_retries = 3
