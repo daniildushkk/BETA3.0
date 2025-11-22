@@ -69,6 +69,7 @@ class TranslationService:
                 'main_menu': "🏠 Главное меню",
                 'events': "📅 Мероприятия",
                 'all_events': "📅 Все мероприятия",
+                'language': "🌍 Язык",
 
                 # Сообщения
                 'welcome': "🎓 Подручный - твой цифровой ассистент!\n\nЯ помогу найти интересные мероприятия в университете. Все команды доступны в меню ниже 👇\n\nПросто нажми на кнопку в меню и смотри!",
@@ -76,7 +77,7 @@ class TranslationService:
                 'events_section': "📅 Раздел мероприятий:",
                 'about_text': "🤖 О боте\n\nЭтот бот создан для студентов МИСИС, чтобы упростить поиск мероприятий.\n\nТехнологии:\n• Python + Aiogram\n• VK API для парсинга мероприятий\n• Yandex GPT для анализа постов\n• SQLite для хранения данных\n\nИсточники информации:\n• Официальные студенческие сообщества МИСИС в ВК\nБот автоматически обновляет информацию каждый час!",
                 'status_text': "🔧 Статус системы:\n• 🤖 Бот: {bot_status}\n• 🔑 VK API: {vk_status}\n• 🤖 AI Анализатор: {ai_status}\n• 💾 База данных: {db_status}\n\nВсе системы работают нормально! 🚀",
-                'help_text': "📖 Бот мероприятий МИСИС\n\nПарсит группы VK:\n{groups}\n\nИщет по ключевым словам:\n{keywords}\n\nДоступные команды:\n• 📅 Мероприятия - все мероприятия (подробно)\n• 🗓️ Календарь - календарь по неделям\n• 🔄 Обновить - запустить парсинг\n• 📊 Статус - статус системы\n• ❓ Помощь - эта справка\n• ℹ️ О боте - информация о боте",
+                'help_text': "📖 Бот мероприятий МИСИС\n\nПарсит группы VK:\n{groups}\n\nИщет по ключевым словам:\n{keywords}\n\nДоступные команды:\n• 📅 Мероприятия - все мероприятия (подробно)\n• 🗓️ Календарь - календарь по неделям\n• 🔄 Обновить - запустить парсинг\n• 📊 Статус - статус системы\n• ❓ Помощь - эта справка\n• ℹ️ О боте - информация о боте\n• 🌍 Язык - сменить язык",
                 'parsing_started': "🔍 Запуск парсинга мероприятий из VK...",
                 'parsing_completed': "✅ Парсинг завершен!\nСохранено мероприятий: {saved_count}\nПроверено групп: {groups_count}\nКлючевых слов: {keywords_count}",
                 'no_new_events': "✅ Новых мероприятий не найдено",
@@ -88,6 +89,8 @@ class TranslationService:
                 'week_events': "📅 Мероприятия на неделю {start_date} - {end_date}:\n🎯 Найдено: {count} мероприятий",
                 'no_week_events': "❌ На неделю {start_date} - {end_date} мероприятий не найдено",
                 'searching_week': "🔍 Ищу мероприятия на неделю:\n📅 {start_date} - {end_date}",
+                'choose_language': "🌍 Выберите язык / Choose language:",
+                'language_changed': "✅ Язык изменен на русский!",
 
                 # Формат мероприятия
                 'event_format': "{title}\n📅 {date} в {time}\n📍 {location}\n📝 {description}\n🔗 [Ссылка на пост]({url})",
@@ -106,6 +109,7 @@ class TranslationService:
                 'main_menu': "🏠 Main Menu",
                 'events': "📅 Events",
                 'all_events': "📅 All Events",
+                'language': "🌍 Language",
 
                 # Сообщения
                 'welcome': "🎓 Assistant - your digital helper!\n\nI'll help you find interesting events at the university. All commands are available in the menu below 👇\n\nJust click a button in the menu and see!",
@@ -113,7 +117,7 @@ class TranslationService:
                 'events_section': "📅 Events section:",
                 'about_text': "🤖 About the Bot\n\nThis bot was created for MISIS students to simplify event search.\n\nTechnologies:\n• Python + Aiogram\n• VK API for event parsing\n• Yandex GPT for post analysis\n• SQLite for data storage\n\nInformation sources:\n• Official MISIS student communities in VK\nThe bot automatically updates information every hour!",
                 'status_text': "🔧 System status:\n• 🤖 Bot: {bot_status}\n• 🔑 VK API: {vk_status}\n• 🤖 AI Analyzer: {ai_status}\n• 💾 Database: {db_status}\n\nAll systems are working normally! 🚀",
-                'help_text': "📖 MISIS Events Bot\n\nParses VK groups:\n{groups}\n\nSearches by keywords:\n{keywords}\n\nAvailable commands:\n• 📅 Events - all events (detailed)\n• 🗓️ Calendar - weekly calendar\n• 🔄 Update - start parsing\n• 📊 Status - system status\n• ❓ Help - this help\n• ℹ️ About - bot information",
+                'help_text': "📖 MISIS Events Bot\n\nParses VK groups:\n{groups}\n\nSearches by keywords:\n{keywords}\n\nAvailable commands:\n• 📅 Events - all events (detailed)\n• 🗓️ Calendar - weekly calendar\n• 🔄 Update - start parsing\n• 📊 Status - system status\n• ❓ Help - this help\n• ℹ️ About - bot information\n• 🌍 Language - change language",
                 'parsing_started': "🔍 Starting event parsing from VK...",
                 'parsing_completed': "✅ Parsing completed!\nSaved events: {saved_count}\nChecked groups: {groups_count}\nKeywords: {keywords_count}",
                 'no_new_events': "✅ No new events found",
@@ -125,6 +129,8 @@ class TranslationService:
                 'week_events': "📅 Events for week {start_date} - {end_date}:\n🎯 Found: {count} events",
                 'no_week_events': "❌ No events found for week {start_date} - {end_date}",
                 'searching_week': "🔍 Searching for events for the week:\n📅 {start_date} - {end_date}",
+                'choose_language': "🌍 Выберите язык / Choose language:",
+                'language_changed': "✅ Language changed to English!",
 
                 # Формат мероприятия
                 'event_format': "{title}\n📅 {date} at {time}\n📍 {location}\n📝 {description}\n🔗 [Post link]({url})",
@@ -248,14 +254,16 @@ def get_main_keyboard(lang: str = 'ru'):
     builder = ReplyKeyboardBuilder()
 
     builder.add(
+        KeyboardButton(text=translator.get_text('events', lang)),
         KeyboardButton(text=translator.get_text('calendar', lang)),
         KeyboardButton(text=translator.get_text('update', lang)),
         KeyboardButton(text=translator.get_text('status', lang)),
         KeyboardButton(text=translator.get_text('help', lang)),
-        KeyboardButton(text=translator.get_text('about', lang))
+        KeyboardButton(text=translator.get_text('about', lang)),
+        KeyboardButton(text=translator.get_text('language', lang))
     )
 
-    builder.adjust(2, 2, 1)
+    builder.adjust(2, 2, 2, 1)
     return builder.as_markup(resize_keyboard=True)
 
 def get_events_keyboard(lang: str = 'ru'):
@@ -263,12 +271,13 @@ def get_events_keyboard(lang: str = 'ru'):
     builder = ReplyKeyboardBuilder()
 
     builder.add(
+        KeyboardButton(text=translator.get_text('events', lang)),
         KeyboardButton(text=translator.get_text('calendar', lang)),
         KeyboardButton(text=translator.get_text('update', lang)),
         KeyboardButton(text=translator.get_text('main_menu', lang))
     )
 
-    builder.adjust(2, 1)
+    builder.adjust(2, 2)
     return builder.as_markup(resize_keyboard=True)
 
 # === AI АНАЛИЗАТОР С ПОДДЕРЖКОЙ ПЕРЕВОДА ===
@@ -782,15 +791,10 @@ class Calendar:
 async def start_handler(message: Message):
     """Обработчик команды /start с выбором языка"""
     user_id = message.from_user.id
-    user_lang = await get_user_language(user_id)
 
-    if user_lang == 'ru':  # Пользователь уже выбирал язык
-        welcome_text = translator.get_text('welcome', user_lang)
-        await message.answer(welcome_text, reply_markup=get_main_keyboard(user_lang))
-    else:
-        # Предлагаем выбрать язык
-        welcome_text = "🌍 Please choose your language / Пожалуйста, выберите язык:"
-        await message.answer(welcome_text, reply_markup=get_language_keyboard())
+    # Всегда показываем выбор языка при старте
+    welcome_text = translator.get_text('choose_language', 'ru')
+    await message.answer(welcome_text, reply_markup=get_language_keyboard())
 
 @dp.callback_query(F.data.startswith("lang_"))
 async def language_callback_handler(callback: CallbackQuery):
@@ -800,19 +804,21 @@ async def language_callback_handler(callback: CallbackQuery):
 
     await set_user_language(user_id, lang)
 
+    # Показываем сообщение об успешной смене языка
+    lang_text = translator.get_text('language_changed', lang)
+    await callback.message.edit_text(lang_text)
+
+    # Показываем основное меню
     welcome_text = translator.get_text('welcome', lang)
-    await callback.message.edit_text(welcome_text)
-    await callback.message.answer(
-        translator.get_text('choose_action', lang),
-        reply_markup=get_main_keyboard(lang)
-    )
+    await callback.message.answer(welcome_text, reply_markup=get_main_keyboard(lang))
     await callback.answer()
 
-@dp.message(Command("language"))
-async def language_command_handler(message: Message):
-    """Обработчик команды смены языка"""
+@dp.message(F.text == "🌍 Язык")
+@dp.message(F.text == "🌍 Language")
+async def language_button_handler(message: Message):
+    """Обработчик кнопки смены языка"""
     await message.answer(
-        "🌍 Choose language / Выберите язык:",
+        translator.get_text('choose_language', await get_user_language(message.from_user.id)),
         reply_markup=get_language_keyboard()
     )
 
@@ -1077,12 +1083,16 @@ async def auto_parse_events():
             folder_id=YANDEX_FOLDER_ID
         )
 
-        # Парсим ТОЛЬКО на русском для скорости
+        # Парсим на обоих языках для начального наполнения базы
         events_ru = await parser.search_events(VK_GROUP_IDS, VK_EVENT_KEYWORDS, 'ru')
         saved_count_ru = await parser.save_events_to_db(events_ru, 'ru')
 
-        if saved_count_ru > 0:
-            logger.info(f"✅ Автопарсинг: сохранено {saved_count_ru} мероприятий на русском")
+        # Также парсим на английском
+        events_en = await parser.search_events(VK_GROUP_IDS, VK_EVENT_KEYWORDS, 'en')
+        saved_count_en = await parser.save_events_to_db(events_en, 'en')
+
+        if saved_count_ru > 0 or saved_count_en > 0:
+            logger.info(f"✅ Автопарсинг: сохранено {saved_count_ru} мероприятий на русском и {saved_count_en} на английском")
         else:
             logger.info("✅ Автопарсинг: новых мероприятий не найдено")
 
